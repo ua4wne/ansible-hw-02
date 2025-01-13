@@ -1,3 +1,4 @@
 ---
-clickhouse_version: "0.43.1"
-endpoints: "89.169.142.121"
+vector_version: "0.43.1"
+# endpoints: "clickhouse-01"
+# vector_folder: "/opt/vector/{{ vector_version }}"

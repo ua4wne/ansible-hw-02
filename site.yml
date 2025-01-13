@@ -1,6 +1,7 @@
 ---
 - name: Install Clickhouse
   hosts: clickhouse
+  become_method: ansible.builtin.su
   handlers:
     - name: Start clickhouse service
       become: true
@@ -8,17 +9,20 @@
         name: clickhouse-server
         state: restarted
   tasks:
-    - block:
+    - name: Install Clickhouse packages
+      block:
         - name: Get clickhouse distrib
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
             dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+            mode: "0755"
           with_items: "{{ clickhouse_packages }}"
       rescue:
-        - name: Get clickhouse distrib
+        - name: Get clickhouse other distrib
           ansible.builtin.get_url:
             url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
             dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+            mode: "0755"
     - name: Install clickhouse packages
       become: true
       ansible.builtin.yum:
@@ -29,46 +33,45 @@
         disable_gpg_check: true
       notify: Start clickhouse service
     - name: Flush handlers
-      meta: flush_handlers
+      ansible.builtin.meta: flush_handlers
     - name: Create database
       ansible.builtin.command: clickhouse-client -q 'create database logs;'
       register: create_db
-      failed_when: create_db.rc != 0 and create_db.rc !=82
+      failed_when: create_db.rc != 0 and create_db.rc != 82
       changed_when: create_db.rc == 0
 - name: Install Vector
   hosts: vector
   become: true
+  become_method: ansible.builtin.su
   handlers:
-    - name: Start vector service
-      ansible.builtin.service:
-        name: vector.service
+    - name: Start Vector service
+      ansible.builtin.systemd:
+        name: vector
         state: restarted
+        daemon_reload: true
   tasks:
-    - name: Create a vector directory if it does not exist
-      ansible.builtin.file:
-        path: /opt/vector
-        state: directory
-    - name: Create a data vector directory if it does not exist
-      ansible.builtin.file:
-        path: /var/lib/vector
-        state: directory
-    - name: Get vector distrib
+    - name: Download Vector packages
       ansible.builtin.get_url:
-        url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-x86_64-unknown-linux-musl.tar.gz"
-        dest: "/tmp/vector-{{ vector_version }}-x86_64-unknown-linux-musl.tar.gz"
-    - name: Unarchive a file with extra options
-      ansible.builtin.unarchive:
-        src: /tmp/vector-{{ vector_version }}-x86_64-unknown-linux-musl.tar.gz
-        dest: /opt/vector
-        extra_opts:
-        - --strip-components=2
-    - name: cd folder vector
-      ansible.builtin.command: cd /opt/vector
-      changed_when: false
-    - name: Template Example
-      template:
-        src: vector.yaml.j2
-        dest: /etc/vector/vector.yaml
-    - name: install Vector into Systemd, run
-      ansible.builtin.shell: bash "cp -av etc/systemd/vector.service /etc/systemd/system"
-      notify: Start vector service
+        url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
+        dest: "./vector-{{ vector_version }}-1.x86_64.rpm"
+        mode: "0755"
+    - name: Install Vector packages
+      ansible.builtin.yum:
+        name: "./vector-{{ vector_version }}-1.x86_64.rpm"
+        disable_gpg_check: true
+    - name: Vector | Apply template
+      ansible.builtin.template:
+        src: vector.yml.j2
+        dest: "/etc/vector/vector.yml"
+        mode: "0644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+    - name: Vector | change systemd unit
+      ansible.builtin.template:
+        src: vector.service.j2
+        dest: /usr/lib/systemd/system/vector.service
+        mode: "0644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        backup: true
+      notify: Start Vector service
