@@ -37,3 +37,7 @@
 >Файл [README.md](./README.md), скриншоты разместил выше по тексту.
 
 10. Готовый playbook выложите в свой репозиторий, поставьте тег 08-ansible-02-playbook на фиксирующий коммит, в ответ предоставьте ссылку на него.
+
+`git tag -a 08-ansible-02-playbook -m "08-ansible-02-playbook"`
+
+`git push origin 08-ansible-02-playbook`
