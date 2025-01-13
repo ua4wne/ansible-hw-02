@@ -2,4 +2,10 @@
 clickhouse:
   hosts:
     clickhouse-01:
-      ansible_host: <IP_here>
+      ansible_host: 89.169.156.109
+      ansible_ssh_user: cloud-user
+vector:
+  hosts:
+    vector-01:
+      ansible_host: 89.169.147.41
+      ansible_ssh_user: cloud-user

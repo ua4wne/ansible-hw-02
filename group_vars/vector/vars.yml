@@ -1,0 +1,3 @@
+---
+clickhouse_version: "0.43.1"
+endpoints: "89.169.142.121"
