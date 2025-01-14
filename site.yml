@@ -24,9 +24,11 @@
             dest: "./clickhouse-common-static_{{ clickhouse_version }}_amd64.deb"
             mode: "0755"
     - name: Ansible install clickhouse-common-static
+      become: true
       ansible.builtin.apt:
         deb: clickhouse-common-static_{{ clickhouse_version }}_amd64.deb
     - name: Ansible install clickhouse-server
+      become: true
       ansible.builtin.apt:
         deb: clickhouse-client_{{ clickhouse_version }}_amd64.deb
     - name: Install clickhouse packages
@@ -58,6 +60,7 @@
         dest: "./vector_{{ vector_version }}_amd64.deb"
         mode: "0755"
     - name: Install Vector packages
+      become: true
       ansible.builtin.apt:
         deb: vector_{{ vector_version }}_amd64.deb
     - name: Vector | Apply template
