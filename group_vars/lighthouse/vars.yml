@@ -1,0 +1,4 @@
+---
+repo_url: "https://github.com/VKCOM/lighthouse"
+lighthouse_nginx_user: root
+lighthouse_dir: "/var/www/lhouse"

@@ -17,12 +17,6 @@
             dest: "./{{ item }}_{{ clickhouse_version }}_amd64.deb"
             mode: "0755"
           with_items: "{{ clickhouse_packages }}"
-      rescue:
-        - name: Get clickhouse other distrib
-          ansible.builtin.get_url:
-            url: "https://packages.clickhouse.com/deb/pool/main/c/clickhouse-common-static/clickhouse-common-static_{{ clickhouse_version }}_amd64.deb"
-            dest: "./clickhouse-common-static_{{ clickhouse_version }}_amd64.deb"
-            mode: "0755"
     - name: Ansible install clickhouse-common-static
       ansible.builtin.apt:
         deb: clickhouse-common-static_{{ clickhouse_version }}_amd64.deb
@@ -43,10 +37,10 @@
       changed_when: create_db.rc == 0
 - name: Install Vector
   hosts: vector
-  become: true
   become_method: ansible.builtin.su
   handlers:
     - name: Start Vector service
+      become: true
       ansible.builtin.systemd:
         name: vector
         state: restarted
@@ -70,9 +64,49 @@
     - name: Vector | change systemd unit
       ansible.builtin.template:
         src: vector.service.j2
-        dest: /usr/lib/systemd/system/vector.service
+        dest: /etc/systemd/system/vector.service
         mode: "0644"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid }}"
         backup: true
       notify: Start Vector service
+- name: Install lighthouse
+  hosts: lighthouse
+  become_method: ansible.builtin.su
+  handlers:
+    - name: Nginx reload
+      become: true
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+  tasks:
+    - name: Install git
+      become: true
+      ansible.builtin.apt:
+        name: git
+        state: present
+        update_cache: true
+    - name: Install nginx
+      become: true
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+    - name: Apply nginx config
+      become: true
+      ansible.builtin.template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        mode: "0644"
+    - name: Clone repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ lighthouse_dir }}"
+        version: master
+    - name: Apply site config
+      become: true
+      ansible.builtin.template:
+        src: lighthouse_nginx.conf.j2
+        dest: /etc/nginx/conf.d/lighthouse.conf
+        mode: "0644"
+      notify: Nginx reload
