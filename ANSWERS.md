@@ -1,6 +1,6 @@
 ## Задача 1
 
-1. Подготовьте свой inventory-файл prod.yml.
+1. Допишите playbook: нужно сделать ещё один play, который устанавливает и настраивает LightHouse.
 
 >Ответ: [prod.yml](./inventory/prod.yml)
 
@@ -22,15 +22,7 @@
 
 ![play_check](task1/play_check.png)
 
-7. Запустите playbook на prod.yml окружении с флагом --diff. Убедитесь, что изменения на системе произведены.
 
-![diff1_1](task1/diff1_1.png)
-![diff1_2](task1/diff1_2.png)
-![diff1_3](task1/diff1_3.png)
-
-8. Повторно запустите playbook с флагом --diff и убедитесь, что playbook идемпотентен.
-
-![diff2](task1/diff2.png)
 
 9. Подготовьте README.md-файл по своему playbook. В нём должно быть описано: что делает playbook, какие у него есть параметры и теги. Пример качественной документации ansible playbook по [ссылке](https://github.com/opensearch-project/ansible-playbook). Так же приложите скриншоты выполнения заданий №5-8
 

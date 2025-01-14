@@ -1,0 +1,98 @@
+---
+- name: Install Clickhouse
+  hosts: clickhouse
+  become_method: ansible.builtin.su
+  handlers:
+    - name: Start clickhouse service
+      become: true
+      ansible.builtin.service:
+        name: clickhouse-server
+        state: restarted
+  # pre_tasks:
+  #   - name: Update mirror centos-addons.repo
+  #     ansible.builtin.replace:
+  #       path: /etc/yum.repos.d/centos-addons.repo
+  #       regexp: 'mirrorlist'
+  #       replace: '#mirrorlist'
+  #   - name: Update mirror centos.repo
+  #     ansible.builtin.replace:
+  #       path: /etc/yum.repos.d/centos.repo
+  #       regexp: 'mirrorlist'
+  #       replace: '#mirrorlist'
+  #   - name: Update mirror centos-addons.repo
+  #     ansible.builtin.replace:
+  #       path: /etc/yum.repos.d/centos-addons.repo
+  #       regexp: '#baseurl=http://mirror.centos.org'
+  #       replace: 'baseurl=http://vault.centos.org'
+  #   - name: Update mirror centos.repo
+  #     ansible.builtin.replace:
+  #       path: /etc/yum.repos.d/centos.repo
+  #       regexp: '#baseurl=http://mirror.centos.org'
+  #       replace: 'baseurl=http://vault.centos.org'
+  tasks:
+    - name: Install Clickhouse packages
+      block:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
+            dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+            mode: "0755"
+          with_items: "{{ clickhouse_packages }}"
+      rescue:
+        - name: Get clickhouse other distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
+            dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+            mode: "0755"
+    - name: Install clickhouse packages
+      become: true
+      ansible.builtin.yum:
+        name:
+          - clickhouse-common-static-{{ clickhouse_version }}.rpm
+          - clickhouse-client-{{ clickhouse_version }}.rpm
+          - clickhouse-server-{{ clickhouse_version }}.rpm
+        disable_gpg_check: true
+      notify: Start clickhouse service
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+    - name: Create database
+      ansible.builtin.command: clickhouse-client -q 'create database logs;'
+      register: create_db
+      failed_when: create_db.rc != 0 and create_db.rc != 82
+      changed_when: create_db.rc == 0
+- name: Install Vector
+  hosts: vector
+  become: true
+  become_method: ansible.builtin.su
+  handlers:
+    - name: Start Vector service
+      ansible.builtin.systemd:
+        name: vector
+        state: restarted
+        daemon_reload: true
+  tasks:
+    - name: Download Vector packages
+      ansible.builtin.get_url:
+        url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
+        dest: "./vector-{{ vector_version }}-1.x86_64.rpm"
+        mode: "0755"
+    - name: Install Vector packages
+      ansible.builtin.yum:
+        name: "./vector-{{ vector_version }}-1.x86_64.rpm"
+        disable_gpg_check: true
+    - name: Vector | Apply template
+      ansible.builtin.template:
+        src: vector.yml.j2
+        dest: "/etc/vector/vector.yml"
+        mode: "0644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+    - name: Vector | change systemd unit
+      ansible.builtin.template:
+        src: vector.service.j2
+        dest: /usr/lib/systemd/system/vector.service
+        mode: "0644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        backup: true
+      notify: Start Vector service
