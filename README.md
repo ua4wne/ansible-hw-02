@@ -38,7 +38,7 @@
 
 9. Переработайте playbook на использование roles. Не забудьте про зависимости LightHouse и возможности совмещения roles с tasks.
 
-[install_roles](./task3/roles.png)
+![install_roles](./task3/roles.png)
 
 >Ответ: [site.yml](./site.yml)
 
