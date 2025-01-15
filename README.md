@@ -26,12 +26,14 @@
 
 8. Выложите все roles в репозитории. Проставьте теги, используя семантическую нумерацию. Добавьте roles в requirements.yml в playbook.
 
-`git tag -a 08-ansible-03-yandex -m "08-ansible-03-yandex"`
+`git tag -a 1.0.0 -m "1.0.0"`
 
-`git push origin 08-ansible-03-yandex`
+`git push origin 1.0.0`
 
 >[vector role](https://github.com/ua4wne/vector-role)
+
 >[lighthouse role](https://github.com/ua4wne/lighthouse-role)
+
 >[requirements.yml](./requirements.yml)
 
 9. Переработайте playbook на использование roles. Не забудьте про зависимости LightHouse и возможности совмещения roles с tasks.
