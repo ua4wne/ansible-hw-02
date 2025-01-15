@@ -2,13 +2,13 @@
 
 1. Создайте в старой версии playbook файл requirements.yml и заполните его содержимым:
 
-`
+```yml
 ---
   - src: git@github.com:AlexeySetevoi/ansible-clickhouse.git
     scm: git
     version: "1.13"
     name: clickhouse 
-`
+```
 2. При помощи ansible-galaxy скачайте себе эту роль.
 
 >`ansible-galaxy install -r requirements.yml -p roles`
