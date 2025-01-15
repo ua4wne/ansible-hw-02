@@ -2,3 +2,6 @@ files/*
 .vscode
 deploy.sh
 Dockerfile
+roles
+vector-role
+lighthouse-role

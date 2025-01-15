@@ -1,35 +1,45 @@
-# Ansible Playbook: ClickHouse & Vector Install & LightHouse
+## Задача 1
 
-Плейбук для установки ClickHouse, Vector и LightHouse на ОС Ubuntu
+1. Создайте в старой версии playbook файл requirements.yml и заполните его содержимым:
 
-## Требования
+`
+---
+  - src: git@github.com:AlexeySetevoi/ansible-clickhouse.git
+    scm: git
+    version: "1.13"
+    name: clickhouse 
+`
+2. При помощи ansible-galaxy скачайте себе эту роль.
 
-ОС Ubuntu
+>`ansible-galaxy install -r requirements.yml -p roles`
 
-## Переменные, используемые в плейбуке
+3. Создайте новый каталог с ролью при помощи ansible-galaxy role init vector-role.
 
-В плейбуке используется ряд переменных. Они находятся в каталоге [group_vars](./group_vars/). При необходимости вы можете изменить следующие переменные:
+>`ansible-galaxy role init vector-role`
 
-1. clickhouse_version - версия устанавливаемых пакетов для ClickHouse. По умолчанию устанавливается версия 22.3.8.39
-2. clickhouse_packages - список устанавливаемых пакетов. По умолчанию устанавливаются следующие пакеты: clickhouse-client, clickhouse-server и clickhouse-common-static
-3. vector_version - по умолчанию будет установлен Vector версии 0.43.1
-4. repo_url - ссылка на репозиторий LightHouse. По умолчанию "https://github.com/VKCOM/lighthouse"
-5. lighthouse_nginx_user - пользователь, от имени которого будет запущен nginx. По умолчанию установлен root
-6. lighthouse_dir - директория, куда будет скачан репозиторий LightHouse. По умолчанию "/var/www/lhouse"
+4. На основе tasks из старого playbook заполните новую role. Разнесите переменные между vars и default.
+5. Перенести нужные шаблоны конфигов в templates.
+6. Опишите в README.md обе роли и их параметры. Пример качественной документации ansible role по ссылке.
+7. Повторите шаги 3–6 для LightHouse. Помните, что одна роль должна настраивать один продукт.
 
-## Зависимости
+>`ansible-galaxy role init lighthouse-role`
 
-Отсутствуют
+8. Выложите все roles в репозитории. Проставьте теги, используя семантическую нумерацию. Добавьте roles в requirements.yml в playbook.
 
-## Пример для запуска плейбука
+`git tag -a 08-ansible-03-yandex -m "08-ansible-03-yandex"`
 
-`ansible-playbook -i inventory/prod.yml site.yml`
+`git push origin 08-ansible-03-yandex`
 
-## Лицензия
+>[vector role](https://github.com/ua4wne/vector-role)
+>[lighthouse role](https://github.com/ua4wne/lighthouse-role)
+>[requirements.yml](./requirements.yml)
 
-Нет
+9. Переработайте playbook на использование roles. Не забудьте про зависимости LightHouse и возможности совмещения roles с tasks.
 
-## Информация об авторе
+[install_roles](./task3/roles.png)
 
-Плейбук был написан в рамках учебного задания. Автор широко известен достаточно в узких кругах.
+>Ответ: [site.yml](./site.yml)
 
+10. Выложите playbook в репозиторий.
+
+11. В ответе дайте ссылки на оба репозитория с roles и одну ссылку на репозиторий с playbook.
