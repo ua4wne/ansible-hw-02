@@ -46,6 +46,7 @@
 ## Tox
 
 1. Добавьте в директорию с vector-role файлы из [директории](https://github.com/netology-code/mnt-homeworks/blob/MNT-video/08-ansible-05-testing/example).
+<<<<<<< HEAD
 2. Запустите docker run --privileged=True -v <path_to_repo>:/opt/vector-role -w /opt/vector-role -it aragast/netology:latest /bin/bash, где path_to_repo — путь до корня репозитория с vector-role на вашей файловой системе.
 
 > ` docker run --privileged=True -v ./vector-role:/opt/vector-role -w /opt/vector-role -it aragast/netology:latest /bin/bash `
@@ -71,3 +72,6 @@
 `git tag -a 1.0.8 -m "1.0.8"`
 
 `git push origin 1.0.8`
+=======
+2. Запустите docker run --privileged=True -v <path_to_repo>:/opt/vector-role -w /opt/vector-role -it aragast/netology:latest /bin/bash, где path_to_repo — путь до корня репозитория с vector-role на вашей файловой системе.
+>>>>>>> 204ca3d39a87009bfa35e699f585beca70f72a40
