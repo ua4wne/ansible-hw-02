@@ -2,7 +2,6 @@
 - name: Install Clickhouse
   hosts: clickhouse
   become_method: ansible.builtin.su
-  become_user: jenkins
   handlers:
     - name: Start clickhouse service
       become: true
@@ -41,7 +40,6 @@
 - name: Install Vector
   hosts: vector
   become_method: ansible.builtin.su
-  become_user: jenkins
   handlers:
     - name: Start Vector service
       become: true
@@ -78,7 +76,6 @@
 - name: Install lighthouse
   hosts: lighthouse
   become_method: ansible.builtin.su
-  become_user: jenkins
   handlers:
     - name: Nginx reload
       become: true
